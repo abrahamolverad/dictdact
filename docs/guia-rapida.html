@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía rápida de DictDact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --panel: #ffffff;
+    --panel-2: #ecebe5;
+    --line: #d9d7cf;
+    --text: #17181c;
+    --muted: #5f636f;
+    --accent: #3f62d6;
+    --accent-ink: #ffffff;
+    --good: #1f8a5c;
+    --warn: #b5730c;
+    --key-top: #fbfaf7;
+    --key-side: #cfcdc4;
+    --key-ink: #17181c;
+    --hero: #e9edfa;
+    --mono-bg: #ecebe5;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1013; --panel: #17181c; --panel-2: #1e2026; --line: #262830; --text: #e8e9ee; --muted: #9a9ea9;
+      --accent: #7c9cff; --accent-ink: #0b0d14; --good: #5fd39a; --warn: #f5a623;
+      --key-top: #24262e; --key-side: #0b0c10; --key-ink: #f2f3f7; --hero: #151a2b; --mono-bg: #121318;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1013; --panel: #17181c; --panel-2: #1e2026; --line: #262830; --text: #e8e9ee; --muted: #9a9ea9;
+    --accent: #7c9cff; --accent-ink: #0b0d14; --good: #5fd39a; --warn: #f5a623;
+    --key-top: #24262e; --key-side: #0b0c10; --key-ink: #f2f3f7; --hero: #151a2b; --mono-bg: #121318;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 640px; margin: 0 auto; padding: 28px 20px 56px; }
+  h1, h2, h3 { font-family: "Bricolage Grotesque", "Instrument Sans", -apple-system, sans-serif; text-wrap: balance; margin: 0; }
+  h1 { font-size: 34px; line-height: 1.08; font-weight: 800; letter-spacing: -0.01em; }
+  h2 { font-size: 22px; line-height: 1.2; font-weight: 700; }
+  p { margin: 0; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  header { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+  header .sub { color: var(--muted); max-width: 40ch; }
+
+  /* --- the thesis: the recovery key ------------------------------------------- */
+  .hero {
+    background: var(--hero); border: 1px solid var(--line); border-radius: 18px;
+    padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 16px;
+  }
+  .hero h2 { font-size: 26px; }
+  .keys { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .plus { color: var(--muted); font-weight: 600; font-size: 20px; }
+  kbd {
+    display: inline-block; min-width: 2.6em; text-align: center;
+    font-family: "Instrument Sans", -apple-system, sans-serif; font-weight: 600; font-size: 15px; color: var(--key-ink);
+    background: var(--key-top); border: 1px solid var(--line); border-radius: 9px;
+    padding: 9px 12px 8px; box-shadow: 0 3px 0 var(--key-side); line-height: 1;
+  }
+  .keys.big kbd { font-size: 22px; padding: 14px 18px 12px; border-radius: 12px; box-shadow: 0 5px 0 var(--key-side); }
+  .hero .lead { font-size: 18px; font-weight: 500; }
+  .hero .fine { color: var(--muted); font-size: 15px; }
+  .hero .fine b { color: var(--text); font-weight: 600; }
+
+  /* --- sections ------------------------------------------------------------------ */
+  .sections { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+  section {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  section h2 { display: flex; align-items: baseline; gap: 10px; }
+  section h2 .eyebrow { font-family: "Instrument Sans", sans-serif; }
+  ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  li .k { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  li .d { color: var(--text); }
+  li .d .m { color: var(--muted); }
+  .menu { font-weight: 600; white-space: nowrap; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th { text-align: left; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 0 0 8px; }
+  td { padding: 8px 0; border-top: 1px solid var(--line); vertical-align: top; }
+  td:first-child { color: var(--muted); font-style: italic; padding-right: 12px; width: 52%; }
+  td:last-child { font-weight: 600; }
+  .tablewrap { overflow-x: auto; }
+
+  code { font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; font-size: 13.5px; background: var(--mono-bg); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }
+  pre { margin: 0; overflow-x: auto; background: var(--mono-bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; font-size: 13px; line-height: 1.55; color: var(--text); }
+  .say { display: flex; flex-direction: column; gap: 2px; }
+  .say .in { color: var(--muted); font-style: italic; }
+  .say .out { font-weight: 600; }
+  .say .out::before { content: "→ "; color: var(--accent); font-weight: 700; }
+
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 999px; padding: 3px 10px; }
+  footer { margin-top: 22px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+  footer .icons { display: flex; gap: 14px; flex-wrap: wrap; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 420px) { h1 { font-size: 30px; } .hero h2 { font-size: 23px; } td:first-child { width: 48%; } }
+</style>
+</head><body>
+<div class="page">
+  <header>
+    <span class="eyebrow">DictDact · v0.3.0 · guía de uso</span>
+    <h1>Lo que hay que saber para dictar sin pelearse con el texto</h1>
+    <p class="sub">Mantén Ctrl, habla, suelta. Todo lo demás en esta página es para cuando algo no cae donde querías.</p>
+  </header>
+
+  <div class="hero">
+    <span class="tag">La tecla de rescate</span>
+    <h2>¿El texto cayó en otra app, o se perdió?</h2>
+    <div class="keys big"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Alt</kbd><span class="plus">+</span><kbd>V</kbd></div>
+    <p class="lead">Haz click en el campo donde lo quieres y pulsa la combinación. El último dictado se pega ahí, donde está el cursor del teclado.</p>
+    <p class="fine">Funciona aunque el texto haya caído en otra ventana o nunca haya aparecido: <b>cada dictado se guarda antes de pegarse</b>. Verás el aviso <b>Re-pasted ✓ → nombre de la app</b>.</p>
+  </div>
+
+  <div class="sections">
+    <section>
+      <h2>Dictar</h2>
+      <ul>
+        <li><div class="k"><kbd>Ctrl</kbd> <span class="d">mantener y hablar; al soltar se transcribe y se pega.</span></div></li>
+        <li><div class="k"><kbd>Ctrl</kbd> <kbd>Ctrl</kbd> <span class="d">tap-tap: manos libres 🔒. Un tap más para terminar.</span></div></li>
+        <li><div class="k"><kbd>Ctrl</kbd><span class="plus">+</span><span class="d">otra tecla o click: es un atajo normal, la grabación se descarta.</span></div></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Recuperar cualquier dictado anterior</h2>
+      <ul>
+        <li><div class="k"><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Alt</kbd><span class="plus">+</span><kbd>H</kbd> <span class="d">abre la ventana. En <span class="menu">Dictations</span> buscas cualquier dictado y lo pegas o copias.</span></div></li>
+        <li><div class="d">Menú 🎙 → <span class="menu">Recent dictations</span> hace lo mismo desde la barra de menús.</div></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Idioma</h2>
+      <p>Menú 🎙 → <span class="menu">Language</span>. <b>Auto</b> entiende español e inglés mezclados en la misma frase. <b>Español</b> o <b>English</b> fijan el idioma y evitan que se cuele el otro. Si dictas casi siempre en uno, fíjalo.</p>
+      <pre>dictdact config --language es     # o en / auto</pre>
+    </section>
+
+    <section>
+      <h2>Diccionario</h2>
+      <p>Nombres, marcas y herramientas que deben salir siempre iguales, con la forma en que Whisper suele oírlos. Se aplican en cada dictado, aunque el modelo se equivoque.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Dicho (lo que oye)</th><th>Escrito</th></tr></thead>
+          <tbody>
+            <tr><td>Ack Me Labs · Acne Labs</td><td>Acme Labs</td></tr>
+            <tr><td>M-L-X · M L X</td><td>MLX</td></tr>
+            <tr><td>Whisper Flow · WhisperFo</td><td>Wispr Flow</td></tr>
+            <tr><td>Dict, Dact · Dictac</td><td>DictDact</td></tr>
+            <tr><td>Superbase · Manichat · Hirox</td><td>Supabase · ManyChat · Hyrox</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Agrégalo una vez con la casilla “sound-alike” marcada (en la terminal, <code>--fuzzy</code>) y DictDact atrapa solo las variantes que oiga después (Hirox, Hierox → Hyrox). En <span class="menu">Dictionary</span> verás sugerencias sacadas de tus propios dictados, con <b>Fix → Save & learn</b> aprende de tus correcciones, y también toma los nombres que están en la ventana activa mientras dictas.</p>
+      <p>Edítalo en menú 🎙 → <span class="menu">Vocabulary…</span> (pestaña <span class="menu">Dictionary</span>), o desde la terminal:</p>
+      <pre>dictdact vocab add "Acme Labs" --spoken "ack me labs, acne labs"
+dictdact vocab list</pre>
+    </section>
+
+    <section>
+      <h2>Corregirte al hablar</h2>
+      <p>Cambia de opinión a media frase y DictDact conserva solo la versión corregida.</p>
+      <ul>
+        <li class="say"><span class="in">mándalo el lunes, no, quiero decir el martes</span><span class="out">Mándalo el martes.</span></li>
+        <li class="say"><span class="in">send it to John, I mean to Daniel, tonight</span><span class="out">Send it to Daniel tonight.</span></li>
+        <li class="say"><span class="in">precio, categoría, etcétera</span><span class="out">precio, categoría, etc.</span></li>
+      </ul>
+      <p class="fine" style="color:var(--muted);font-size:15px">Marcadores que entiende: <i>no, mejor… · quiero decir · digo · mejor dicho · I mean · actually · no wait · scratch that</i>. Comandos: <i>nueva línea · nuevo párrafo · punto · coma · viñeta</i>. Una corrección corta va después de una coma ("el lunes, no, quiero decir el martes"); para descartar toda la frase di <i>borra eso</i> o <i>scratch that</i> y sigue.</p>
+    </section>
+  </div>
+
+  <footer>
+    <div class="icons"><span>🎙 listo</span><span>🔴 escuchando</span><span>🔒 manos libres</span><span>⏳ transcribiendo</span><span>⚠️ error</span></div>
+    <p>Sonidos: <i>tink</i> al reconocer la pulsación, <i>pop</i> al soltar, <i>blow</i> al pegar. Todo corre en tu Mac; nada sale a internet.</p>
+  </footer>
+</div>
+</body></html>

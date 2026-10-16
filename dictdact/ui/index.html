@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DictDact</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="app">
+  <nav class="side">
+    <div class="brand"><span class="logo">🎙</span><div><div class="name">DictDact</div><div class="ver" id="ver">—</div></div></div>
+    <a class="nav active" data-tab="live"><span class="ico">◉</span>Live</a>
+    <a class="nav" data-tab="dictations"><span class="ico">☰</span>Dictations</a>
+    <a class="nav" data-tab="voicebank"><span class="ico">🗣</span>Voice bank<span class="nav-dot hidden" id="vb-nav-dot"></span></a>
+    <a class="nav" data-tab="mic"><span class="ico">🎤</span>Microphone</a>
+    <a class="nav" data-tab="vocab"><span class="ico">📖</span>Dictionary</a>
+    <a class="nav" data-tab="guide"><span class="ico">❔</span>Guía</a>
+    <a class="nav" data-tab="settings"><span class="ico">⚙︎</span>Settings</a>
+    <div class="side-vb" id="side-vb" title="Voice bank — your voice for ElevenLabs">
+      <div class="side-vb-head"><span id="side-vb-state">Voice bank</span></div>
+      <div class="side-vb-row"><span>ES</span><div class="mini"><i id="side-vb-es"></i></div><b id="side-vb-es-n">0</b></div>
+      <div class="side-vb-row"><span>EN</span><div class="mini"><i id="side-vb-en"></i></div><b id="side-vb-en-n">0</b></div>
+    </div>
+    <div class="side-foot">
+      <div class="stat"><b id="st-today">0</b><span>takes today</span></div>
+      <div class="stat"><b id="st-words">0</b><span>words today</span></div>
+      <div class="stat"><b id="st-wpd">0</b><span>words/day</span></div>
+      <div class="stat"><b id="st-all">0</b><span>words all time</span></div>
+      <div class="since" id="st-since"></div>
+      <div class="perms" id="perms"></div>
+    </div>
+  </nav>
+
+  <main>
+    <section id="tab-live" class="tab active">
+      <div class="card hero">
+        <div class="hero-top">
+          <div class="state-badge idle" id="state-badge"><span class="dot"></span><span id="state-text">Ready</span></div>
+          <div class="hint" id="hotkey-hint">Hold <kbd>Ctrl</kbd> and talk · tap-tap to lock · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd> re-pastes</div>
+        </div>
+        <canvas id="wave" height="140"></canvas>
+        <div class="hero-bottom">
+          <div class="meter"><div class="meter-bar"><div class="meter-fill" id="meter-fill"></div></div><div class="meter-db" id="meter-db">—</div></div>
+          <div class="mic-now">🎤 <span id="mic-now">—</span> · <span id="engine-now">whisper</span> · <span id="fmt-now">mlx</span></div>
+        </div>
+        <div class="status-line" id="status-line"></div>
+      </div>
+
+      <div class="card" id="last-card">
+        <div class="card-title">Last dictation</div>
+        <div id="last-empty" class="muted">Nothing yet — hold Ctrl and say something.</div>
+        <div id="last" class="hidden">
+          <div class="meta" id="last-meta"></div>
+          <div class="text" id="last-text"></div>
+          <details><summary>Raw transcript &amp; timings</summary><div class="raw" id="last-raw"></div><div class="timings" id="last-timings"></div></details>
+          <div class="actions"><button data-act="copy">Copy</button><button data-act="paste" class="primary">Paste again</button><button data-act="fix">Fix</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-dictations" class="tab">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="card-title">Words per day</div>
+            <div class="small muted" id="chart-sum">—</div>
+          </div>
+          <div class="range" id="chart-range">
+            <button class="ghost" data-days="14">14 d</button>
+            <button class="ghost active" data-days="30">30 d</button>
+            <button class="ghost" data-days="0">All</button>
+          </div>
+        </div>
+        <div class="chart" id="chart"></div>
+        <div class="chart-axis"><span id="chart-from"></span><span id="chart-hover"></span><span id="chart-to"></span></div>
+      </div>
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Search dictations…">
+        <span class="count" id="count"></span>
+        <button class="ghost" id="open-history">Open file</button>
+      </div>
+      <div id="list" class="list"></div>
+    </section>
+
+    <section id="tab-voicebank" class="tab">
+      <div class="card vb-hero">
+        <div class="hero-top">
+          <div class="state-badge" id="vb-badge"><span class="dot"></span><span id="vb-badge-text">…</span></div>
+          <div class="vb-hero-actions">
+            <button class="ghost" id="vb-folder">Open folder</button>
+            <button id="vb-toggle">…</button>
+          </div>
+        </div>
+        <p class="muted small vb-lead">Every dictation you make is also kept as your natural voice, filed by language — your
+          Spanish and your English become two separate voices. 30 usable minutes per language is enough for an
+          ElevenLabs Professional Voice Clone; 2–3 hours is best.</p>
+        <div class="vb-langs" id="vb-langs"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Room quality — how far your voice stands above the noise</div>
+        <div class="vb-gauge">
+          <div class="vb-gauge-track"><div class="z red"></div><div class="z amber"></div><div class="z green"></div>
+            <div class="vb-marker" id="vb-marker"><span id="vb-marker-label"></span></div></div>
+          <div class="vb-gauge-scale"><span>0 dB</span><span>20 · usable</span><span>28 · ideal</span><span>40 dB</span></div>
+        </div>
+        <div class="vb-room-text" id="vb-room-text">—</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Latest takes — which language each one went to</div>
+        <div id="vb-takes" class="vb-takes"></div>
+      </div>
+    </section>
+
+    <section id="tab-mic" class="tab">
+      <div class="card">
+        <div class="card-title">Microphone</div>
+        <p class="muted">Pick the mic DictDact listens to. Press <b>Test</b> and talk — the bar must move. Whispers show as a small bar; silence shows nothing.</p>
+        <div id="devices" class="devices"></div>
+        <div class="actions"><button class="ghost" id="refresh-devices">Refresh devices</button></div>
+        <div class="test-row">
+          <button id="mic-test" class="primary">Test selected mic</button>
+          <div class="meter big"><div class="meter-bar"><div class="meter-fill" id="test-fill"></div></div><div class="meter-db" id="test-db">—</div></div>
+          <div class="verdict" id="test-verdict"></div>
+        </div>
+        <p class="muted small">Tip: with the lid closed the built-in MacBook mic is silent. If your mic has a physical gain dial and your voice shows under −40 dB while speaking normally, turn it up.</p>
+      </div>
+    </section>
+
+    <section id="tab-vocab" class="tab">
+      <div class="card">
+        <div class="card-title">Dictionary</div>
+        <p class="muted">Words DictDact must spell exactly like this — and how the speech model tends to hear them. Example: dictated “superbase” → written “Supabase”, or “ack me labs” → “Acme Labs”. A “spoken as” variant is replaced everywhere it appears, so avoid everyday phrases (“the lab”, “one more time”) unless you never use them as plain words.</p>
+        <div class="vocab-add">
+          <input id="vocab-term" type="text" placeholder="Term (written exactly like this)">
+          <input id="vocab-spoken" type="text" placeholder="Spoken as (comma-separated, optional)">
+          <input id="vocab-note" type="text" placeholder="Note (optional)">
+          <label class="row small"><input type="checkbox" id="vocab-fuzzy" checked>Also catch sound-alike spellings (Hirox → Hyrox)</label>
+          <button id="vocab-add-btn" class="primary">Add</button>
+        </div>
+      </div>
+      <div class="card" id="vocab-suggest-card">
+        <div class="card-title">Suggested from your dictations</div>
+        <p class="muted">Names the speech model spelled more than one way in your takes. Pick the right spelling, the others become "spoken as".</p>
+        <div class="muted small" id="vocab-suggest-meta"></div>
+        <div id="vocab-suggest-list" class="suggest-list"></div>
+      </div>
+      <div class="vocab-toolbar">
+        <span class="count" id="vocab-count"></span>
+        <button class="ghost" id="open-vocab">Open file</button>
+      </div>
+      <div id="vocab-list" class="list"></div>
+    </section>
+
+    <section id="tab-guide" class="tab">
+      <div class="card">
+        <div class="card-title">Cómo dictar</div>
+        <ul class="guide-list">
+          <li>Mantén <kbd>Ctrl</kbd> y habla; suelta para transcribir. El texto se pega donde está el cursor.</li>
+          <li><kbd>Ctrl</kbd> tap-tap = manos libres (🔒); un tap más para terminar.</li>
+          <li><kbd>Ctrl</kbd> + otra tecla o click = atajo normal, la grabación se descarta.</li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <div class="card-title">Si el texto no cayó donde querías</div>
+        <ul class="guide-list">
+          <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>V</kbd> vuelve a pegar el último dictado <b>donde está el cursor del teclado</b> en ese momento. Haz click en el campo correcto y pulsa la combinación. Funciona aunque el texto haya caído en otra app o se haya perdido: cada dictado se guarda antes de pegarse.</li>
+          <li><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> abre esta ventana; en <b>Dictations</b> puedes buscar cualquier dictado anterior y pegarlo o copiarlo, y arriba está tu gráfica de <b>palabras por día</b>.</li>
+          <li>Menú 🎙 → <i>Recent dictations</i> hace lo mismo desde la barra de menús.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Idioma</div>
+        <p>Menú 🎙 → <b>Language</b> (o Settings aquí): <i>Auto</i> entiende español e inglés mezclados; <b>Español</b> o <b>English</b> fijan el idioma y evitan que se mezcle. Si dictas casi siempre en un idioma, fíjalo.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Diccionario</div>
+        <p>En <b>Dictionary</b> agrega nombres, marcas y herramientas con la forma en que Whisper suele oírlos (por ejemplo, "Hirox" → Hyrox o "superbase" → Supabase). Se aplican en cada dictado. También desde la terminal: <code>dictdact vocab add "Acme Labs" --spoken "ack me labs, acne labs"</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Corregirte al hablar</div>
+        <p>Di "no, mejor…", "quiero decir…", "digo…", "I mean…", "actually…", "scratch that" y DictDact conserva solo la versión corregida. Una corrección corta va después de una coma ("el lunes, no, quiero decir el martes"); para descartar toda la frase di "borra eso" o "scratch that" y sigue. "etcétera" se escribe "etc.". Comandos: "nueva línea", "nuevo párrafo", "punto", "coma", "viñeta".</p>
+      </div>
+      <p class="muted small guide-footer">Iconos: 🎙 listo · 🔴 escuchando · 🔒 manos libres · ⏳ transcribiendo · ⚠️ error.</p>
+    </section>
+
+    <section id="tab-settings" class="tab">
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">Dictation</div>
+          <label>Hotkey (hold to talk)<select data-key="hotkey"><option value="ctrl">Ctrl (either)</option><option value="ctrl_l">Left Ctrl</option><option value="ctrl_r">Right Ctrl</option><option value="alt_r">Right Option</option><option value="cmd_r">Right Command</option><option value="shift_r">Right Shift</option></select></label>
+          <label>Language<select data-key="language"><option value="">Auto (Spanish + English)</option><option value="es">Spanish — locked</option><option value="en">English — locked</option></select><span class="muted small">A lock forces Whisper's language and tells the local LLM to write in it. Parakeet has no language token (the lock only steers the LLM); with structuring on <b>rules</b>/<b>off</b> only Whisper enforces it.</span></label>
+          <label class="row"><input type="checkbox" data-key="context_terms">Use the names visible in the active window to spell them right</label>
+          <label class="row"><input type="checkbox" data-key="double_tap_lock">Tap-tap the hotkey to lock hands-free</label>
+          <label class="row"><input type="checkbox" data-key="sounds">Sounds</label>
+        </div>
+        <div class="card">
+          <div class="card-title">Models</div>
+          <label>Speech engine<select data-key="engine"><option value="whisper">Whisper large-v3-turbo (best quality)</option><option value="parakeet">Parakeet v3 (fastest)</option></select></label>
+          <label>Text structuring<select data-key="formatter"><option value="mlx">Local LLM (Qwen3-4B)</option><option value="ollama">Ollama model</option><option value="rules">Rules only (instant)</option><option value="off">Off</option></select></label>
+          <label>Result style<select data-key="formatter_style"><option value="clean">Clean — verbatim, enforced</option><option value="improve">Improve wording</option><option value="translate_en">Translate → English</option><option value="translate_es">Translate → Spanish</option><option value="summary">Summarize</option></select></label>
+          <label class="row"><input type="checkbox" data-key="formatter_always">Run the LLM even on short clean takes</label>
+          <label>Max whisper boost (dB)<input type="number" data-key="max_gain_db" min="0" max="60" step="1"></label>
+        </div>
+        <div class="card">
+          <div class="card-title">Output</div>
+          <label class="row"><input type="checkbox" data-key="paste">Paste into the active app</label>
+          <label class="row"><input type="checkbox" data-key="restore_clipboard">Put my previous clipboard back after pasting</label>
+          <label class="row"><input type="checkbox" data-key="keep_recordings">Keep a WAV of every take</label>
+          <label class="row"><input type="checkbox" id="autostart">Start at login &amp; restart if it crashes</label>
+          <label class="row"><input type="checkbox" data-key="dock_icon">Show DictDact in the Dock (⌘-Tab)</label>
+          <label class="row"><input type="checkbox" data-key="show_window_at_launch">Open this window when DictDact starts</label>
+        </div>
+        <div class="card">
+          <div class="card-title">Permissions</div>
+          <div id="perm-list" class="perm-list"></div>
+          <div class="actions"><button class="ghost" data-open="accessibility">Accessibility settings</button><button class="ghost" data-open="microphone">Microphone settings</button></div>
+          <div class="card-title top">Files</div>
+          <div class="actions"><button class="ghost" id="open-config">Open config</button><button class="ghost" id="open-history-2">Open history</button></div>
+          <p class="muted small" id="paths"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # lets the job attach the DMG to a GitHub Release
+
+jobs:
+  build:
+    runs-on: macos-14   # Apple silicon runner (M1)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Check for signing secrets
+        id: secrets
+        env:
+          CERT: ${{ secrets.MACOS_CERT_P12 }}
+        run: echo "have=$([ -n "$CERT" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Import Developer ID certificate
+        if: steps.secrets.outputs.have == 'true'
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERT_P12 }}
+          p12-password: ${{ secrets.MACOS_CERT_PASSWORD }}
+
+      - name: Store notarization credentials
+        if: steps.secrets.outputs.have == 'true'
+        run: |
+          xcrun notarytool store-credentials dictdact-notary \
+            --apple-id "${{ secrets.APPLE_ID }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --password "${{ secrets.APPLE_APP_PASSWORD }}"
+
+      - name: Build, sign, package
+        env:
+          SIGN_IDENTITY: ${{ steps.secrets.outputs.have == 'true' && secrets.SIGN_IDENTITY || '' }}
+          NOTARY_PROFILE: ${{ steps.secrets.outputs.have == 'true' && 'dictdact-notary' || '' }}
+        run: scripts/build-release.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DictDact-dmg
+          path: dist/DictDact-*.dmg
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/DictDact-*.dmg
+          generate_release_notes: true

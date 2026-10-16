@@ -1,0 +1,42 @@
+[project]
+name = "dictdact"
+version = "0.3.0"
+description = "Local push-to-talk dictation for macOS: hold Ctrl, speak (or whisper) in Spanish/English, get clean structured text pasted where your cursor is."
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [{name = "Abraham Olvera"}]
+dependencies = [
+  "mlx-whisper>=0.4",
+  "mlx-lm>=0.20",
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "soundfile>=0.12",
+  "sounddevice>=0.4.6",
+  "pynput>=1.7.7",
+  "rumps>=0.4",
+  "pyobjc-framework-Cocoa>=10",
+  "pyobjc-framework-WebKit>=10",
+  "pyobjc-framework-AVFoundation>=10",
+  "pyobjc-framework-ServiceManagement>=10",
+  "huggingface_hub>=0.23",
+]
+
+[project.urls]
+Homepage = "https://abrahamolvera.ai/dictdact"
+Source = "https://github.com/abrahamolverad/dictdact"
+
+[project.optional-dependencies]
+parakeet = ["parakeet-mlx>=0.3"]
+
+[project.scripts]
+dictdact = "dictdact.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["dictdact*"]
+
+[tool.setuptools.package-data]
+dictdact = ["ui/*"]
